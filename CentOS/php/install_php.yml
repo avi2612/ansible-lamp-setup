@@ -1,0 +1,38 @@
+---
+    - name: Adding epel and remi repository
+      yum:
+       name: "{{ item }}"
+       state: present
+      with_items:
+        - "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
+        - "https://rpms.remirepo.net/enterprise/remi-release-{{ ansible_distribution_major_version }}.rpm"
+    
+    - name: updating cache
+      yum: 
+       name: "*"
+       state: present
+
+    - name: enable php repo
+      ini_file:
+       dest: /etc/yum.repos.d/remi.repo
+       section: "remi-php{{php_version_c}}"
+       option: enabled
+       value: 1
+
+    - name: Installing php
+      yum:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      with_items:
+       - php
+       - php-common
+       - php-opcache
+       - php-mcrypt
+       - php-cli
+       - php-gd
+       - php-curl
+       - php-mysql
+
+
+    - debug: msg="php is installed"

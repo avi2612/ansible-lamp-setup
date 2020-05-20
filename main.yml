@@ -1,0 +1,17 @@
+---
+ - hosts: all
+   become: true   
+   tasks:   
+    
+    - include_vars: vars.yml
+      
+
+    - include_tasks: "{{ ansible_distribution }}/mariadb/1_installing_database.yml"
+    - include_tasks: "{{ ansible_distribution }}/mariadb/2_configuring_database.yml"
+    - include_tasks: "{{ ansible_distribution }}/mariadb/3_creating_database.yml"
+
+    
+    - include_tasks: "{{ ansible_distribution }}/php/install_php.yml"
+    
+    - include_tasks: "{{ ansible_distribution }}/webserver/webserver.yml"
+    

@@ -1,0 +1,32 @@
+---
+
+  - name: restarting mariadb
+    service:
+        name: mysql
+        state: restarted
+
+  - name: MariaDB | Update root password for root account
+    mysql_user:
+       check_implicit_admin: yes
+       host_all: yes
+       name: root
+       password: "{{ mysql_root_password }}"
+       login_user: root
+       login_password: "{{ mysql_root_password }}"
+    
+  - name: MariaDB | Removing remote root login
+    mysql_user:
+        user: root
+        host: "{{ ansible_fqdn }}"
+        check_implicit_admin: true
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        state: absent
+    
+  - name: MariaDB | Ensure anonymous users are not in the database
+    mysql_user:
+       name: ''
+       host_all: yes
+       state: absent
+       login_user: root
+       login_password: "{{ mysql_root_password }}"

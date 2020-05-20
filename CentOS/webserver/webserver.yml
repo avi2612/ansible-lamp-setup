@@ -1,0 +1,67 @@
+---
+  - name: Install httpd
+    yum:
+     name: "{{ item }}"
+     state: present
+    with_items:
+      - httpd
+
+      
+
+  - name: deploy web config file
+    copy:
+     src: "data/{{website_name}}.tar"
+     dest: "/tmp/{{website_name}}.tar"
+     force: yes
+
+  - name: create dir
+    file:
+        dest: "/var/www/html/{{website_name}}/"
+        state: directory
+
+  - name: Unarchive a file that needs to be downloaded (added in 2.0)
+    unarchive:
+     src: "/tmp/{{website_name}}.tar"
+     dest: "/var/www/html/{{website_name}}/"
+     remote_src: yes
+
+  - name: deploy web config file
+    template:
+        src: "config/apache.j2"
+        dest: "/etc/httpd/conf.d/{{website_name}}.conf"
+
+  - shell: setenforce Permissive
+
+  - name: Recursively change ownership of a directory
+    file:
+      path: "/var/www/html/{{website_name}}/"
+      state: directory
+      recurse: yes
+      owner: apache
+      group: apache
+      mode: '0755'
+      
+
+
+#  - name: Disable default Apache site
+#    copy:
+#     dest: /etc/httpd/conf.d/welcome.conf
+#     content: "#"
+
+
+  - name: Enable and start Apache
+    systemd:
+      name: httpd
+      state: started
+      enabled: true
+     
+     
+  - name: Set SELinux boolean for Apache
+    seboolean:
+      name: httpd_can_network_connect
+      state: yes
+      persistent: yes
+
+  - service:
+     name: httpd
+     state: restarted

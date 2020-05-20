@@ -1,0 +1,17 @@
+---
+  - name: Adding ondrej php repository
+    apt_repository:
+       validate_certs: no
+       repo: 'ppa:ondrej/php'
+       state: present
+
+#  - set_fact:
+#     php_ver: "{{ php_version | string }}"
+
+  - name: Installing php
+    apt:
+        name: "php{{ php_version_u }}-*"
+        state: present
+        update_cache: true
+
+  - debug: msg="php is installed"

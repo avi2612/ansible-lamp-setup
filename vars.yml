@@ -1,0 +1,13 @@
+mysql_root_password: mysql123
+mysql_database: www_project
+db_user: avinash
+db_pass: avinash123
+
+packages_ubuntu: ['software-properties-common','mariadb-server', 'python-mysqldb','python3-pymysql']
+
+packages_centos: ['epel-release.noarch','mariadb-server', 'MySQL-python']
+
+php_version_u: 7.3
+php_version_c: 73
+
+website_name: bookstore.avinash.live

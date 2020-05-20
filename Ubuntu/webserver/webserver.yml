@@ -1,0 +1,52 @@
+---
+  - name: Install Apache
+    apt:
+     name: "{{ item }}"
+     state: present
+    with_items:
+      - apache2
+
+  - name: deploy web config file
+    copy:
+     src: "data/{{website_name}}.tar"
+     dest: "/tmp/{{website_name}}.tar"
+     force: yes
+
+  - name: create dir
+    file:
+        dest: "/var/www/html/{{website_name}}/"
+        state: directory
+
+  - name: Unarchive a file that needs to be downloaded (added in 2.0)
+    unarchive:
+     src: "/tmp/{{website_name}}.tar"
+     dest: "/var/www/html/{{website_name}}/"
+     remote_src: yes
+
+  - name: deploy web config file
+    template:
+        src: "config/apache.j2"
+        dest: "/etc/apache2/sites-available/{{website_name}}.conf"
+
+  - name: Recursively change ownership of a directory
+    file:
+      path: "/var/www/html/{{website_name}}/"
+      state: directory
+      recurse: yes
+      owner: www-data
+      group: www-data
+      mode: '0755'
+      
+#  - apache2_module:
+#      state: present
+#      name: php"{{ php_version }}
+
+  - name: Disable default Apache site
+    shell: /usr/sbin/a2dissite 000-default.conf
+
+  - name: Enable new site
+    shell: /usr/sbin/a2ensite {{ website_name }}
+           
+  - name: Enable and start Apache
+    shell: apachectl restart
+    

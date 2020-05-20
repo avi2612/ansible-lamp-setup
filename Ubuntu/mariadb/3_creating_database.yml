@@ -1,0 +1,44 @@
+---
+  - name: MariaDB | Creating database
+    mysql_db:
+       name: "{{ mysql_database }}"
+       state: present
+       login_user: root
+       login_password: "{{ mysql_root_password }}"
+    
+  - name: MariaDB | Creating user
+    mysql_user: 
+       login_user: root
+       login_password: "{{ mysql_root_password }}"
+       host: "{{ item }}"
+       name: "{{ db_user }}"
+       password: "{{ db_pass }}"
+       priv: "{{ mysql_database }}.*:ALL,GRANT"
+       state: present
+    with_items:
+        - localhost
+        - "127.0.0.1"
+    
+  - name: MariaDB | copying sql file , if given
+    copy:
+        src: "files/{{ mysql_database }}.sql"
+        dest: "/tmp/{{ mysql_database }}.sql"
+    ignore_errors: true
+
+    
+  - name: MariaDB | Restoring database from {{mysql_database}}.sql , if given
+    mysql_db:
+        name: "{{ mysql_database }}"
+        state: import
+        target: "/tmp/{{ mysql_database }}.sql"
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+    ignore_errors: true
+
+  - debug: msg="MariaDB Installed Successfully"
+ 
+  - name: restart_mariadb
+    service:
+       name: mariadb
+       state: started
+       enabled: true

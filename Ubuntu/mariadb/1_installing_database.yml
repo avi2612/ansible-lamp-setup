@@ -1,0 +1,24 @@
+---
+
+    - name: Updating all packages
+      apt:
+        name: "*"
+        update_cache: true
+    
+    - name: updating cache
+      apt:
+        name: python-apt
+        update_cache: true
+
+    - name: Installing mariadb Packages
+      apt:
+        name: "{{ item }}"
+        update_cache: true
+      with_items:
+        "{{ packages_ubuntu }}"
+
+    - name: restarting mariadb
+      service:
+        name: mysql
+        state: restarted
+
